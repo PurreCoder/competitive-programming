@@ -53,18 +53,18 @@ struct Segtree
             coords.erase(unique(all(coords)), coords.end());
             maxy = coords.size();
             t.resize(maxy + 1, 0);
-            /*for (int i = 0; i < a.size(); ++i)
-            {
-                int ind = lower_bound(all(coords), a[i].first) - coords.begin() + 1;
-                t[ind] += a[i].second;
-                if (ind + (ind & -ind) <= t.size())
-                {
-                    t[ind + (ind & -ind)] += t[ind];
-                }
-            }*/
+            int pos = 1;
             for (int i = 0; i < a.size(); ++i)
             {
-                inc(a[i].first, a[i].second);
+                if (pos < maxy && coords[pos] <= a[i].first)
+                {
+                    if (pos + (pos & -pos) < t.size())
+                    {
+                        t[pos + (pos & -pos)] += t[pos];
+                    }
+                    ++pos;
+                }
+                t[pos] += a[i].second;
             }
         }
 
@@ -185,25 +185,20 @@ void solve()
     cin >> n;
     vii dots(n);
     vi cur_val(n); // of points weights
-    vi coordx(n), coordy(n); // for coordinate compression
+    vi coordx(n); // for coordinate compression
     for (int i = 0; i < n; ++i)
     {
         cin >> dots[i].first >> dots[i].second >> cur_val[i];
         coordx[i] = dots[i].first;
-        coordy[i] = dots[i].second;
     }
     sort(all(coordx));
-    sort(all(coordy));
     coordx.erase(unique(all(coordx)), coordx.end());
-    coordy.erase(unique(all(coordy)), coordy.end());
     int maxx = coordx.size();
-    int maxy = coordy.size();
 
     // compression
     for (int u = 0; u < n; ++u)
     {
         dots[u].first = lower_bound(all(coordx), dots[u].first) - coordx.begin();
-        dots[u].second = lower_bound(all(coordy), dots[u].second) - coordy.begin() + 1;
     }
 
     // adding points
@@ -224,7 +219,6 @@ void solve()
         if (type[0] == 'g') // get
         {
             a = upper_bound(all(coordx), a) - coordx.begin() - 1;
-            b = upper_bound(all(coordy), b) - coordy.begin();
             cout << seg.calc(a, b) << '\n';
         }
         else // change
@@ -241,6 +235,10 @@ int main()
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
+#ifndef ONLINE_JUDGE
+    FILE* fin;
+    freopen_s(&fin, "input.txt", "r", stdin);
+#endif
     int t = 1;
     while (t--)
     {
