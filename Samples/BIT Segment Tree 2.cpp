@@ -105,8 +105,8 @@ struct Segtree
         {
             merge(all(tree[i << 1].a), all(tree[i << 1 | 1].a), back_inserter(tree[i].a));
             tree[i].build();
-            tree[i >> 1].a.clear();
-            tree[i >> 1 | 1].a.clear();
+            tree[i << 1].a.clear();
+            tree[i << 1 | 1].a.clear();
         }
     }
 
