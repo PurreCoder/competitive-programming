@@ -98,15 +98,17 @@ struct Segtree
         tree.resize(2 * n);
         for (int i = 0; i < n; ++i)
         {
-            tree[i + n] = { a[i], vll() };
+            tree[i + n] = { a[i] };
             tree[i + n].build();
+            move(all(tree[i + n].a), back_inserter(tree[(i + n) >> 1].a));
         }
         for (int i = n - 1; i > 0; --i)
         {
-            merge(all(tree[i << 1].a), all(tree[i << 1 | 1].a), back_inserter(tree[i].a));
             tree[i].build();
-            tree[i << 1].a.clear();
-            tree[i << 1 | 1].a.clear();
+            if (i != 1)
+            {
+                move(all(tree[i].a), back_inserter(tree[i >> 1].a));
+            }
         }
     }
 
@@ -188,10 +190,6 @@ int main()
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
-#ifndef ONLINE_JUDGE
-    FILE* fin;
-    freopen_s(&fin, "input.txt", "r", stdin);
-#endif
     int t = 1;
     while (t--)
     {
