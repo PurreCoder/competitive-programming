@@ -45,12 +45,6 @@ struct Segtree
 
         void build()
         {
-            sort(all(a));
-            for (auto& [y, w] : a)
-            {
-                coords.push_back(y);
-            }
-            coords.erase(unique(all(coords)), coords.end());
             maxy = coords.size();
             t.resize(maxy + 1, 0);
             int pos = 1;
@@ -96,19 +90,22 @@ struct Segtree
     {
         n = a.size();
         tree.resize(2 * n);
+        tree.shrink_to_fit();
         for (int i = 0; i < n; ++i)
         {
-            tree[i + n] = { a[i] };
+            tree[i + n].a = a[i];
+            for (auto [y, w] : a[i])
+            {
+                tree[i + n].coords.push_back(y);
+            }
+            tree[i + n].coords.erase(unique(all(tree[i + n].coords)), tree[i + n].coords.end());
             tree[i + n].build();
-            move(all(tree[i + n].a), back_inserter(tree[(i + n) >> 1].a));
         }
         for (int i = n - 1; i > 0; --i)
         {
+            merge(all(tree[i << 1].a), all(tree[i << 1 | 1].a), back_inserter(tree[i].a));
+            set_union(all(tree[i << 1].coords), all(tree[i << 1 | 1].coords), back_inserter(tree[i].coords));
             tree[i].build();
-            if (i != 1)
-            {
-                move(all(tree[i].a), back_inserter(tree[i >> 1].a));
-            }
         }
     }
 
@@ -162,6 +159,10 @@ void solve()
     {
         dots_by_x[dots[i].first].push_back({ dots[i].second, cur_val[i] });
     }
+    for (auto& vi : dots_by_x)
+    {
+        sort(all(vi));
+    }
     Segtree seg(dots_by_x);
 
     int m;
@@ -190,6 +191,10 @@ int main()
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
+#ifndef ONLINE_JUDGE
+    FILE* fin;
+    freopen_s(&fin, "input.txt", "r", stdin);
+#endif
     int t = 1;
     while (t--)
     {
